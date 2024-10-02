@@ -12,6 +12,7 @@ import {
 import { useRouter } from "next/router";
 import Link from "next/link";
 import FunctionsIcon from "@mui/icons-material/Functions";
+// import Image from "next/image";
 import Divider from "@mui/material/Divider";
 import PersonIcon from "@mui/icons-material/Person";
 import useBearStore from "@/store/useBearStore";
@@ -22,12 +23,13 @@ const NavigationLayout = ({ children }) => {
 
   return (
     <>
-      <AppBar position="sticky" sx={{ backgroundColor: "#ff5e15" }}>
+      <AppBar position="sticky" sx={{ backgroundColor: "#000000" }}>
         <Toolbar>
-          <Link href={"/"}>
+          {/* <Link href={"/"}>
             <FunctionsIcon sx={{ color: "#ffffff" }} fontSize="large" />
-          </Link>
-          <Typography
+          </Link> */}
+          
+          {/* <Typography
             variant="body1"
             sx={{
               fontSize: "22px",
@@ -37,8 +39,10 @@ const NavigationLayout = ({ children }) => {
               fontFamily: "Prompt",
             }}>
             {appName}
-          </Typography>
-          <NavigationLink href="/page1" label="Page1" />
+          </Typography> */}
+          <NavigationLink href="/" label="Home" />
+          <NavigationLink href="/page1" label="Watchlist" />
+          <NavigationLink href="/page2" label="Watched Movies" />
           <div style={{ flexGrow: 1 }} />
           <Button
             color="#ffffff"
@@ -62,7 +66,7 @@ const NavigationLink = ({ href, label }) => {
         sx={{
           fontSize: "14px",
           fontWeight: 500,
-          // textTransform: "uppercase",
+          textTransform: "uppercase",
           color: "#fff",
           padding: "0 10px", // Add padding on left and right
         }}>

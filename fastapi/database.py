@@ -1,4 +1,5 @@
 from databases import Database
+from datetime import date
 
 POSTGRES_USER = "temp"
 POSTGRES_PASSWORD = "temp"
@@ -7,46 +8,95 @@ POSTGRES_HOST = "db"
 
 DATABASE_URL = f'postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}/{POSTGRES_DB}'
 
+# Create a Database object
 database = Database(DATABASE_URL)
 
+# Function to connect to the database
 async def connect_db():
     await database.connect()
     print("Database connected")
 
+# Function to disconnect from the database
 async def disconnect_db():
     await database.disconnect()
     print("Database disconnected")
 
-
-# Function to insert a new user into the users table
-async def insert_user(username: str, password_hash: str, email: str):
+# Function to insert a new movie into the movie table
+async def insert_movie(movie_title: str, movie_genre: str, movie_releaseddate: date, movie_director: str):
     query = """
-    INSERT INTO users (username, password_hash, email)
-    VALUES (:username, :password_hash, :email)
-    RETURNING user_id, username, password_hash, email, created_at
+    INSERT INTO movie (movie_title, movie_genre, movie_releaseddate, movie_director)
+    VALUES (:movie_title, :movie_genre, :movie_releaseddate, :movie_director)
+    RETURNING movie_id, movie_title, movie_genre, movie_releaseddate, movie_director
     """
-    values = {"username": username, "password_hash": password_hash, "email": email}
+    values = {
+        "movie_title": movie_title, 
+        "movie_genre": movie_genre, 
+        "movie_releaseddate": movie_releaseddate,  # date object
+        "movie_director": movie_director
+    }
     return await database.fetch_one(query=query, values=values)
 
-# Function to select a user by user_id from the users table
-async def get_user(user_id: int):
-    query = "SELECT * FROM users WHERE user_id = :user_id"
-    return await database.fetch_one(query=query, values={"user_id": user_id})
-
-# Function to update a user in the users table
-async def update_user(user_id: int, username: str, password_hash: str, email: str):
+# Function to insert movie to watchlist
+# Function to insert a movie into the watchlist with current date automatically
+async def insert_watchlist(movie_id: int):
     query = """
-    UPDATE users 
-    SET username = :username, password_hash = :password_hash, email = :email
-    WHERE user_id = :user_id
-    RETURNING user_id, username, password_hash, email, created_at
+    INSERT INTO watchlist (movie_id, date_added)
+    VALUES (:movie_id, CURRENT_DATE)
+    RETURNING watchlist_id, movie_id, date_added
     """
-    values = {"user_id": user_id, "username": username, "password_hash": password_hash, "email": email}
+    
+    values = {
+        "movie_id": movie_id
+    }
+    
     return await database.fetch_one(query=query, values=values)
 
-# Function to delete a user from the users table
-async def delete_user(user_id: int):
-    query = "DELETE FROM users WHERE user_id = :user_id RETURNING *"
-    return await database.fetch_one(query=query, values={"user_id": user_id})
+# Function to get a movie by movie_id from the movie table
+async def get_movie(movie_id: int):
+    query = "SELECT * FROM movie WHERE movie_id = :movie_id"
+    return await database.fetch_one(query=query, values={"movie_id": movie_id})
+
+# Function to update a movie in the movie table
+async def update_movie(movie_id: int, movie_title: str, movie_genre: str, movie_releaseddate: date, movie_director: str):
+    query = """
+    UPDATE movie 
+    SET movie_title = :movie_title, movie_genre = :movie_genre, movie_releaseddate = :movie_releaseddate, movie_director = :movie_director
+    WHERE movie_id = :movie_id
+    RETURNING movie_id, movie_title, movie_genre, movie_releaseddate, movie_director
+    """
+    values = {
+        "movie_id": movie_id, 
+        "movie_title": movie_title, 
+        "movie_genre": movie_genre, 
+        "movie_releaseddate": movie_releaseddate,  # date object
+        "movie_director": movie_director
+    }
+    return await database.fetch_one(query=query, values=values)
+
+# Function to delete a movie from the movie table
+async def delete_movie(movie_id: int):
+    query = "DELETE FROM movie WHERE movie_id = :movie_id RETURNING *"
+    return await database.fetch_one(query=query, values={"movie_id": movie_id})
+
+# Function to select a movie by title from the movie table
+async def get_movie_by_title(movie_title: str):
+    query = "SELECT * FROM movie WHERE movie_title = :movie_title"
+    return await database.fetch_one(query=query, values={"movie_title": movie_title})
+
+async def insert_watchlist(movie_id: int):
+    query = """
+    INSERT INTO watchlist (movie_id, date_added)
+    VALUES (:movie_id, CURRENT_TIMESTAMP)
+    RETURNING watchlist_id, movie_id, date_added
+    """
+    values = {
+        "movie_id": movie_id
+    }
+    return await database.fetch_one(query=query, values=values)
+
+# Function to get all movies
+async def get_all_movies():
+    query = "SELECT * FROM movie"
+    return await database.fetch_all(query=query)
 
 
