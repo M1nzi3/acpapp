@@ -78,20 +78,31 @@ async def delete_movie_endpoint(movie_id: int):
 class watchlistAdd(BaseModel):
     movie_id: int
 
-# Endpoint to add a movie to the watchlist
-@router.post("/watchlist/")
-async def add_to_watchlist(watchlist: watchlistAdd):
-    # Check if the movie exists before adding to watchlist
-    movie = await get_movie(watchlist.movie_id)
-    if movie is None:
-        raise HTTPException(status_code=404, detail="Movie not found")
+class watchlist(BaseModel):
+    watchlist_id: int
+    movie_id: int
+    date_added: date
 
-    # Insert into the watchlist
-    result = await insert_watchlist(watchlist.movie_id, date_added=date.today())
+# Endpoint to add a movie to the watchlist
+# @router.post("/watchlist/")
+# async def add_to_watchlist(watchlist: watchlistAdd):
+#     # Check if the movie exists before adding to watchlist
+#     movie = await get_movie(watchlist.movie_id)
+#     if movie is None:
+#         raise HTTPException(status_code=404, detail="Movie not found")
+
+#     # Insert into the watchlist
+#     result = await insert_watchlist(watchlist.movie_id, date_added=date.today())
+#     if result is None:
+#         raise HTTPException(status_code=400, detail="Error adding movie to watchlist")
+    
+#     return {"detail": "Movie added to watchlist", "watchlist_entry": result}
+
+@router.post("/watchlist/", response_model=watchlist)
+async def add_to_watchlist(watchlist: watchlistAdd):
+    result = await insert_watchlist(watchlist.movie_id)
     if result is None:
         raise HTTPException(status_code=400, detail="Error adding movie to watchlist")
-    
-    return {"detail": "Movie added to watchlist", "watchlist_entry": result}
-
+    return result
 
 

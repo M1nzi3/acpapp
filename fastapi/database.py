@@ -36,21 +36,6 @@ async def insert_movie(movie_title: str, movie_genre: str, movie_releaseddate: d
     }
     return await database.fetch_one(query=query, values=values)
 
-# Function to insert movie to watchlist
-# Function to insert a movie into the watchlist with current date automatically
-async def insert_watchlist(movie_id: int):
-    query = """
-    INSERT INTO watchlist (movie_id, date_added)
-    VALUES (:movie_id, CURRENT_DATE)
-    RETURNING watchlist_id, movie_id, date_added
-    """
-    
-    values = {
-        "movie_id": movie_id
-    }
-    
-    return await database.fetch_one(query=query, values=values)
-
 # Function to get a movie by movie_id from the movie table
 async def get_movie(movie_id: int):
     query = "SELECT * FROM movie WHERE movie_id = :movie_id"
@@ -85,8 +70,8 @@ async def get_movie_by_title(movie_title: str):
 
 async def insert_watchlist(movie_id: int):
     query = """
-    INSERT INTO watchlist (movie_id, date_added)
-    VALUES (:movie_id, CURRENT_TIMESTAMP)
+    INSERT INTO watchlist (movie_id)
+    VALUES (:movie_id)
     RETURNING watchlist_id, movie_id, date_added
     """
     values = {
