@@ -12,7 +12,7 @@ class movieCreate(BaseModel):
     movie_genre: str
     movie_releaseddate: date
     movie_director: str 
-    date_watched: Optional[date]
+    # date_watched: Optional[date]
 
 # Pydantic model for movie update
 class movieUpdate(BaseModel):
@@ -50,28 +50,28 @@ async def create_movie(movie: movieCreate):
     return {"movie": result, "watchlist_entry": watchlist_result}
 
 
-# Insert the movie and then add it to the watched table with date_watched
-@router.post("/movie/watched")
-async def create_movie_watched(movie: movieCreate):
-    # Step 1: Insert the movie into the movie table
-    result = await insert_movie(
-        movie.movie_title,
-        movie.movie_genre,
-        movie.movie_releaseddate,
-        movie.movie_director
-    )
-    if result is None:
-        raise HTTPException(status_code=400, detail="Error creating movie")
+# # Insert the movie and then add it to the watched table with date_watched
+# @router.post("/movie/watched")
+# async def create_movie_watched(movie: movieCreate):
+#     # Step 1: Insert the movie into the movie table
+#     result = await insert_movie(
+#         movie.movie_title,
+#         movie.movie_genre,
+#         movie.movie_releaseddate,
+#         movie.movie_director
+#     )
+#     if result is None:
+#         raise HTTPException(status_code=400, detail="Error creating movie")
 
-    # Step 2: Insert the movie into the watched table with date_watched
-    if movie.date_watched:
-        watched_result = await insert_watchedMovie(result[0], movie.date_watched)  # result[0] is movie_id
-        if watched_result is None:
-            raise HTTPException(status_code=400, detail="Error adding movie to watched list")
-    else:
-        raise HTTPException(status_code=400, detail="Watched date is required")
+#     # Step 2: Insert the movie into the watched table with date_watched
+#     if movie.date_watched:
+#         watched_result = await insert_watchedMovie(result[0], movie.date_watched)  # result[0] is movie_id
+#         if watched_result is None:
+#             raise HTTPException(status_code=400, detail="Error adding movie to watched list")
+#     else:
+#         raise HTTPException(status_code=400, detail="Watched date is required")
 
-    return {"movie": result, "watched_entry": watched_result}
+#     return {"movie": result, "watched_entry": watched_result}
 
 # Endpoint to get a movie by movie_id
 @router.get("/movie/{movie_id}", response_model=movie)
