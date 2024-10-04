@@ -14,6 +14,7 @@ export default function WatchedPage() {
   const [movieGenre, setMovieGenre] = useState("");
   const [movieReleasedDate, setMovieReleasedDate] = useState("");
   const [movieDirector, setMovieDirector] = useState("");
+  const [dateWatched, setDateWatched] = useState("");
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -24,7 +25,8 @@ export default function WatchedPage() {
       movie_title: movieTitle,
       movie_genre: movieGenre,
       movie_releaseddate: movieReleasedDate,
-      movie_director: movieDirector
+      movie_director: movieDirector,
+      date_watched: dateWatched
     };
 
     // console.log(movieData)
@@ -32,7 +34,7 @@ export default function WatchedPage() {
     try {
       // Make the API request to the backend
       // const response = await axios.post("/api/movie/", movieData);
-      const response = await fetch('/api/movie/hello', {
+      const response = await fetch('/api/movie/watched', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -41,7 +43,8 @@ export default function WatchedPage() {
           movie_title: movieTitle,
           movie_genre: movieGenre,
           movie_releaseddate: movieReleasedDate,
-          movie_director: movieDirector
+          movie_director: movieDirector,
+          date_watched: dateWatched
         }),
       });
       console.log(response)
@@ -53,6 +56,7 @@ export default function WatchedPage() {
         setMovieGenre("");
         setMovieReleasedDate("");
         setMovieDirector("");
+        setDateWatched("")
       }
 
     } catch (error) {

@@ -84,4 +84,16 @@ async def get_all_movies():
     query = "SELECT * FROM movie"
     return await database.fetch_all(query=query)
 
+async def insert_watchedMovie(movie_id: int, dateWatched: date):
+    query = """
+    INSERT INTO watched (movie_id, dateWatched)
+    VALUES (:movie_id, :dateWatched)
+    RETURNING watched_id, movie_id, dateWatched
+    """
+    values = {
+        "movie_id": movie_id,
+        "dateWatched": dateWatched
+    }
+    return await database.fetch_one(query=query, values=values)
+
 
