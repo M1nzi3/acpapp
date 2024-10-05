@@ -79,11 +79,12 @@ async def insert_watchlist(movie_id: int):
     }
     return await database.fetch_one(query=query, values=values)
 
-# Function to get all movies
-async def get_all_movies():
-    query = "SELECT * FROM movie"
+# Function to get movieID from watchlist
+async def get_all_movies_from_watchlist():
+    query = "select movie_id from watchlist w"
     return await database.fetch_all(query=query)
 
+#Function to insrt watchedMovie
 async def insert_watchedMovie(movie_id: int, dateWatched: date):
     query = """
     INSERT INTO watched (movie_id, dateWatched)
@@ -95,5 +96,7 @@ async def insert_watchedMovie(movie_id: int, dateWatched: date):
         "dateWatched": dateWatched
     }
     return await database.fetch_one(query=query, values=values)
+
+
 
 

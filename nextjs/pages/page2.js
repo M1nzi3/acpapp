@@ -21,7 +21,7 @@ export default function WatchedPage() {
     e.preventDefault();
 
     // Create the data object to be sent to the backend
-    const movieData = {
+    const movieWatchedData = {
       movie_title: movieTitle,
       movie_genre: movieGenre,
       movie_releaseddate: movieReleasedDate,
@@ -39,17 +39,11 @@ export default function WatchedPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          movie_title: movieTitle,
-          movie_genre: movieGenre,
-          movie_releaseddate: movieReleasedDate,
-          movie_director: movieDirector,
-          date_watched: dateWatched
-        }),
+        body: JSON.stringify(movieWatchedData),
       });
       console.log(response)
       // If successful, handle success (e.g., clear the form, show a success message)
-      if (response.status === 200) {
+      if (response.ok) {
         alert("Movie added successfully!");
         // Clear form fields
         setMovieTitle("");
@@ -57,6 +51,8 @@ export default function WatchedPage() {
         setMovieReleasedDate("");
         setMovieDirector("");
         setDateWatched("")
+      } else {
+        alert("Failed to add movie. Please try again.");
       }
 
     } catch (error) {
@@ -131,6 +127,8 @@ export default function WatchedPage() {
               variant="outlined"
               margin="normal"
               type="date"
+              value={dateWatched}
+              onChange={(e) => setDateWatched(e.target.value)}
               InputLabelProps={{ shrink: true, style: { color: '#ffffff' } }}
               InputProps={{ style: { color: '#ffffff' } }}
               style={{ backgroundColor: '#333333' }}

@@ -41,7 +41,7 @@ const NavigationLayout = ({ children }) => {
             {appName}
           </Typography> */}
           <NavigationLink href="/" label="Home" />
-          <NavigationLink href="/page1" label="Watchlist" />
+          <NavigationLink href="/watchlist" label="Watchlist" />
           <NavigationLink href="/page2" label="Watched Movies" />
           <div style={{ flexGrow: 1 }} />
           <Button

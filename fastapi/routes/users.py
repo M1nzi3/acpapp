@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from datetime import date
 from database import *
 
@@ -12,7 +12,13 @@ class movieCreate(BaseModel):
     movie_genre: str
     movie_releaseddate: date
     movie_director: str 
-    # date_watched: Optional[date]
+
+class movieCreateWatched(BaseModel):
+    movie_title: str
+    movie_genre: str
+    movie_releaseddate: date
+    movie_director: str 
+    date_watched: Optional[date]
 
 # Pydantic model for movie update
 class movieUpdate(BaseModel):
@@ -28,6 +34,14 @@ class movie(BaseModel):
     movie_genre: str
     movie_releaseddate: date
     movie_director: str
+
+class watchlistAdd(BaseModel):
+    movie_id: int
+
+class watchlist(BaseModel):
+    watchlist_id: int
+    movie_id: int
+    date_added: date
 
 # Endpoint to create a new movie and add movie to watchlist
 @router.post("/movie/hello")
@@ -51,27 +65,24 @@ async def create_movie(movie: movieCreate):
 
 
 # # Insert the movie and then add it to the watched table with date_watched
-# @router.post("/movie/watched")
-# async def create_movie_watched(movie: movieCreate):
-#     # Step 1: Insert the movie into the movie table
-#     result = await insert_movie(
-#         movie.movie_title,
-#         movie.movie_genre,
-#         movie.movie_releaseddate,
-#         movie.movie_director
-#     )
-#     if result is None:
-#         raise HTTPException(status_code=400, detail="Error creating movie")
+@router.post("/movie/watched")
+async def create_movie_watched(movie: movieCreateWatched):
+    # Step 1: Insert the movie into the movie table
+    result = await insert_movie(
+        movie.movie_title,
+        movie.movie_genre,
+        movie.movie_releaseddate,
+        movie.movie_director
+    )
+    date_temp = movie.date_watched
+    if result is None:
+        raise HTTPException(status_code=400, detail="Error creating movie")
 
-#     # Step 2: Insert the movie into the watched table with date_watched
-#     if movie.date_watched:
-#         watched_result = await insert_watchedMovie(result[0], movie.date_watched)  # result[0] is movie_id
-#         if watched_result is None:
-#             raise HTTPException(status_code=400, detail="Error adding movie to watched list")
-#     else:
-#         raise HTTPException(status_code=400, detail="Watched date is required")
+    watched_result = await insert_watchedMovie(result[0], date_temp)  # result[0] is movie_id
+    if watched_result is None:
+        raise HTTPException(status_code=400, detail="Error adding movie to watched list")
 
-#     return {"movie": result, "watched_entry": watched_result}
+    return {"movie": result, "watched_entry": watched_result}
 
 # Endpoint to get a movie by movie_id
 @router.get("/movie/{movie_id}", response_model=movie)
@@ -111,13 +122,46 @@ async def delete_movie_endpoint(movie_id: int):
 # --- New Endpoint to add movie to watchlist ---
 
 # Pydantic model for adding a movie to the watchlist
-class watchlistAdd(BaseModel):
-    movie_id: int
 
-class watchlist(BaseModel):
-    watchlist_id: int
-    movie_id: int
-    date_added: date
+
+# # Endpoint to get a watchlist by movie_id
+# @router.get("/watchlist/{movie_id}")
+# async def read_watchlist(movie_id: int):
+#     result = await get_movieID_watchlist(movie_id)
+#     if result is None:
+#         raise HTTPException(status_code=404, detail="There are no Movie in Watchlist")
+#     result1 = await get_movie(result)
+#     if result1 is None:
+#         raise HTTPException(status_code=400, detail="Error getting movie from watchlist")
+#     return result1
+
+# Endpoint to get all movies from the watchlist
+@router.get("/watchlist", response_model=List[movie])
+async def read_all_watchlist():
+    # Fetch all movie_ids from the watchlist
+    watchlist_movies = await get_all_movies_from_watchlist()
+
+    if not watchlist_movies:
+        raise HTTPException(status_code=404, detail="No movies found in the watchlist")
+
+    # Extract movie_ids
+    movie_ids = [entry["movie_id"] for entry in watchlist_movies]
+
+    # Fetch movie details for all movie_ids
+    movies = []
+    for movie_id in movie_ids:
+        movie = await get_movie(movie_id)
+        if movie:
+            movies.append(movie)
+
+    if not movies:
+        raise HTTPException(status_code=404, detail="No movie details found for any watchlist entry")
+
+    return movies
+
+
+
+
 
 
 
