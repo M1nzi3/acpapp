@@ -1,94 +1,62 @@
-import React, { useState } from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import Home from "./Home"; // Your Home page component
-import WatchlistPage from "./WatchlistPage"; // Another page example
-import WatchedMoviesPage from "./WatchedMoviesPage"; // Another page example
-import { Box, Typography, Button, TextField } from "@mui/material";
+import { useState } from 'react';
+import { useRouter } from 'next/router';
 
-function App() {
-  // State for managing password and lock screen visibility
-  const [password, setPassword] = useState("");
-  const [isUnlocked, setIsUnlocked] = useState(false);
+const LockScreen = () => {
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const router = useRouter();
 
-  // Correct password
-  const correctPassword = "mySecret123"; // Change this to your desired password
+  const correctPassword = '1234'; // Set your own password
 
-  // Function to handle password verification
   const handleUnlock = () => {
     if (password === correctPassword) {
-      setIsUnlocked(true); // Unlock the entire app
+      localStorage.setItem('unlocked', 'true');
+      router.push('/'); // Redirect to the homepage or any unlocked page
     } else {
-      alert("Incorrect password, try again!");
+      setError('Incorrect password');
     }
   };
 
   return (
-    <Box sx={{ height: "100vh", width: "100%", position: "relative" }}>
-      {/* Lock Screen Overlay (covers entire app) */}
-      {!isUnlocked && (
-        <Box
-          sx={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            bgcolor: "rgba(0, 0, 0, 0.9)",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            zIndex: 9999,
-          }}
-        >
-          <Box
-            sx={{
-              padding: "40px",
-              backgroundColor: "#1e1e1e",
-              borderRadius: "10px",
-              textAlign: "center",
-            }}
-          >
-            <Typography variant="h4" sx={{ marginBottom: "20px", color: "white" }}>
-              Enter Password to Access the App
-            </Typography>
-            <TextField
-              type="password"
-              label="Password"
-              variant="outlined"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              sx={{
-                input: { color: "white" },
-                label: { color: "white" },
-                backgroundColor: "#333333",
-                borderRadius: "5px",
-              }}
-              fullWidth
-            />
-            <Button
-              variant="contained"
-              onClick={handleUnlock}
-              style={{ backgroundColor: "#ff1b1b", color: "white", marginTop: "16px" }}
-              fullWidth
-            >
-              Unlock
-            </Button>
-          </Box>
-        </Box>
-      )}
-
-      {/* App Content (all pages/routes) */}
-      {isUnlocked && (
-        <Router>
-          <Switch>
-            <Route exact path="/" component={Home} />
-            <Route path="/page1" component={WatchlistPage} />
-            <Route path="/page2" component={WatchedMoviesPage} />
-          </Switch>
-        </Router>
-      )}
-    </Box>
+    <div style={styles.container}>
+      <h1>Enter Password to Unlock</h1>
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        style={styles.input}
+      />
+      <button onClick={handleUnlock} style={styles.button}>
+        Unlock
+      </button>
+      {error && <p style={styles.error}>{error}</p>}
+    </div>
   );
-}
+};
 
-export default App;
+const styles = {
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100vh',
+    backgroundColor: '#f0f0f0',
+  },
+  input: {
+    padding: '10px',
+    fontSize: '16px',
+    marginBottom: '10px',
+  },
+  button: {
+    padding: '10px 20px',
+    fontSize: '16px',
+    cursor: 'pointer',
+  },
+  error: {
+    color: 'red',
+    marginTop: '10px',
+  },
+};
+
+export default LockScreen;

@@ -1,5 +1,5 @@
 import "@/styles/globals.css";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { AppCacheProvider } from "@mui/material-nextjs/v13-pagesRouter";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
@@ -8,6 +8,7 @@ import Layout from "@/components/layout";
 import useBearStore from "@/store/useBearStore";
 import Head from "next/head";
 import { Backdrop, CircularProgress } from "@mui/material";
+import LockScreen from "@/components/LockScreen"; // Import the LockScreen component
 
 const roboto = Roboto({
   weight: ["300", "400", "500", "700"],
@@ -24,17 +25,29 @@ const theme = createTheme({
 
 export default function App({ Component, pageProps, props }) {
   const router = useRouter();
-  const [loading, setLoading] = React.useState(false);
+  const [loading, setLoading] = useState(false);
+  const [isUnlocked, setIsUnlocked] = useState(false); // Track if the user has unlocked
   const setAppName = useBearStore((state) => state.setAppName);
   const pageName = router.pathname;
 
-  React.useEffect(() => {
+  useEffect(() => {
     console.log("App load", pageName, router.query);
     setLoading(true);
-    // TODO: This section is use to handle page change.
-    setAppName("Say Hi")
+    
+    // Check if user is unlocked from localStorage
+    const unlocked = localStorage.getItem('unlocked') === 'true';
+    setIsUnlocked(unlocked);
+
+    setAppName("Say Hi");
     setLoading(false);
   }, [router, pageName]);
+
+  // Handle the lock screen rendering if the user hasn't unlocked yet
+  if (!isUnlocked && pageName !== '/lockscreen') {
+    return (
+      <LockScreen />  // Render LockScreen if not unlocked
+    );
+  }
 
   return (
     <React.Fragment>
@@ -48,10 +61,17 @@ export default function App({ Component, pageProps, props }) {
       <AppCacheProvider {...props}>
         <ThemeProvider theme={theme}>
           <Layout>
-            <Component {...pageProps} />
+            {loading ? (
+              <Backdrop open={true}>
+                <CircularProgress color="inherit" />
+              </Backdrop>
+            ) : (
+              <Component {...pageProps} />
+            )}
           </Layout>
         </ThemeProvider>
       </AppCacheProvider>
     </React.Fragment>
   );
 }
+

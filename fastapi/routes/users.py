@@ -118,23 +118,6 @@ async def delete_movie_endpoint(movie_id: int):
         raise HTTPException(status_code=404, detail="Movie not found")
     return {"detail": "Movie deleted"}
 
-
-# --- New Endpoint to add movie to watchlist ---
-
-# Pydantic model for adding a movie to the watchlist
-
-
-# # Endpoint to get a watchlist by movie_id
-# @router.get("/watchlist/{movie_id}")
-# async def read_watchlist(movie_id: int):
-#     result = await get_movieID_watchlist(movie_id)
-#     if result is None:
-#         raise HTTPException(status_code=404, detail="There are no Movie in Watchlist")
-#     result1 = await get_movie(result)
-#     if result1 is None:
-#         raise HTTPException(status_code=400, detail="Error getting movie from watchlist")
-#     return result1
-
 # Endpoint to get all movies from the watchlist
 @router.get("/watchlist", response_model=List[movie])
 async def read_all_watchlist():
@@ -158,6 +141,14 @@ async def read_all_watchlist():
         raise HTTPException(status_code=404, detail="No movie details found for any watchlist entry")
 
     return movies
+
+# Endpoint to delete a movie from watchlist
+@router.delete("/watchlist")
+async def delete_watchlist_item(movie_id: int):
+    result = await delete_watchlist(movie_id)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Movie not found")
+    return {"detail": "Movie deleted"}
 
 
 
