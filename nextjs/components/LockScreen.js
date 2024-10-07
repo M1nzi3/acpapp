@@ -19,7 +19,7 @@ const LockScreen = () => {
 
   return (
     <div style={styles.container}>
-      <h1>Enter Password to Unlock</h1>
+      <h1 style={{color: '#ffffff'}}>Enter Password to Unlock</h1>
       <input
         type="password"
         value={password}
@@ -41,7 +41,7 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     height: '100vh',
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#121212',
   },
   input: {
     padding: '10px',
@@ -52,6 +52,8 @@ const styles = {
     padding: '10px 20px',
     fontSize: '16px',
     cursor: 'pointer',
+    backgroundColor: '#ff1b1b',
+    color: 'white'
   },
   error: {
     color: 'red',

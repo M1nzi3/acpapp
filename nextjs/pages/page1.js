@@ -11,7 +11,6 @@ export default function WatchlistPage() {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     // Create the data object to be sent to the backend
     const movieData = {
       movie_title: movieTitle,

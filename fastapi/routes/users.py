@@ -43,6 +43,12 @@ class watchlist(BaseModel):
     movie_id: int
     date_added: date
 
+class rating(BaseModel):
+    movie_id: int
+    rating: int
+    favorite: bool
+    review: Optional[str]
+
 # Endpoint to create a new movie and add movie to watchlist
 @router.post("/movie/hello")
 async def create_movie(movie: movieCreate):
@@ -149,6 +155,43 @@ async def delete_watchlist_item(movie_id: int):
     if result is None:
         raise HTTPException(status_code=404, detail="Movie not found")
     return {"detail": "Movie deleted"}
+
+# Endpoint to get all movies from the watched
+@router.get("/watched", response_model=List[movie])
+async def read_all_watched():
+    # Fetch all movie_ids from the watchlist
+    watched_movies = await get_all_movies_from_watched()
+
+    if not watched_movies:
+        raise HTTPException(status_code=404, detail="No movies found in watched movie")
+
+    # Extract movie_ids
+    movie_ids = [entry["movie_id"] for entry in watched_movies]
+
+    # Fetch movie details for all movie_ids
+    movies = []
+    for movie_id in movie_ids:
+        movie = await get_movie(movie_id)
+        if movie:
+            movies.append(movie)
+
+    if not movies:
+        raise HTTPException(status_code=404, detail="No movie details found for any watched entry")
+
+    return movies
+
+# Endpoint to rate movie
+@router.post("/rate")
+async def rate_movie(movie: rating):
+    result = await insert_rating(
+        movie.movie_id,
+        movie.rating,
+        movie.favorite,
+        movie.review
+    )
+    if result is None:
+        raise HTTPException(status_code=404, detail="Movie not found")
+    return {"movie": result, "rating_entry": result}
 
 
 

@@ -4,6 +4,10 @@ import Checkbox from '@mui/material/Checkbox';
 import FavoriteBorder from '@mui/icons-material/FavoriteBorder';
 import Favorite from '@mui/icons-material/Favorite';
 import StarIcon from '@mui/icons-material/Star';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
 
 
 export default function WatchedPage() {
@@ -15,6 +19,12 @@ export default function WatchedPage() {
   const [movieReleasedDate, setMovieReleasedDate] = useState("");
   const [movieDirector, setMovieDirector] = useState("");
   const [dateWatched, setDateWatched] = useState("");
+
+  const [age, setAge] = React.useState('');
+
+  const handleChange = (event) => {
+    setAge(event.target.value);
+  };
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -152,7 +162,7 @@ export default function WatchedPage() {
             Rate and Review your watched movie?
           </Typography>
           <form>
-            <TextField
+            {/* <TextField
               fullWidth
               label="Name"
               variant="filled"
@@ -160,8 +170,23 @@ export default function WatchedPage() {
               InputLabelProps={{ style: { color: '#ffffff' } }}
               InputProps={{ style: { color: '#ffffff' } }}
               style={{ backgroundColor: '#333333' }}
-            />
-            <Grid container spacing={2}>
+            /> */}
+            <FormControl fullWidth style={{ color: '#ffffff',  backgroundColor: '#333333' }}>
+            <InputLabel id="demo-simple-select-label" component="legend" style={{ color: '#ffffff' }}>Movie Title</InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={age}
+                label="Age"
+                onChange={handleChange}
+                style={{ color: '#ffffff' }}
+              >
+                <MenuItem value={10}>Ten</MenuItem>
+                <MenuItem value={20}>Twenty</MenuItem>
+                <MenuItem value={30}>Thirty</MenuItem>
+              </Select>
+            </FormControl>
+            <Grid container spacing={2} marginTop={1}>
               <Grid item xs={6}>
                 <Typography component="legend" style={{ color: '#ffffff' }}>Rate this movie</Typography>
                 <Rating

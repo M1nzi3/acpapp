@@ -31,14 +31,6 @@ const NavigationLayout = ({ children }) => {
 
           <div style={{ flexGrow: 1 }} /> {/* Flex spacer */}
 
-          {/* Account Button */}
-          <Button
-            color="#ffffff"
-            onClick={() => {
-              router.push("/page2");
-            }}>
-            <PersonIcon />
-          </Button>
 
           {/* Logout Button */}
           <Button

@@ -102,6 +102,26 @@ async def insert_watchedMovie(movie_id: int, dateWatched: date):
     }
     return await database.fetch_one(query=query, values=values)
 
+# Function to get movieID from watched
+async def get_all_movies_from_watched():
+    query = "select movie_id from watched w"
+    return await database.fetch_all(query=query)
+
+#Function to insert rating
+async def insert_rating(movie_id: int, rating: int, favorite: bool, review: str):
+    query = """
+    INSERT INTO rating (movie_id, rating, favorite, review)
+    VALUES (:movie_id, :rating, :favorite, :review)
+    RETURNING rating_id, movie_id, rating, favorite, review
+            """
+    values = {
+        "movie_id": movie_id,
+        "rating": rating,
+        "favorite": favorite,
+        "review": review
+    }
+    return await database.fetch_one(query=query, values=values)
+
 
 
 
