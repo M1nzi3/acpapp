@@ -49,6 +49,22 @@ class rating(BaseModel):
     favorite: bool
     review: Optional[str]
 
+class MovieWatchedRequest(BaseModel):
+    movie_id: int
+    dateWatched: date = None  # Optional date field
+
+
+class WatchedMovie(BaseModel):
+    movie_id: int
+    movie_title: str
+    movie_genre: str
+    movie_releaseddate: date
+    movie_director: str
+    date_watched: date  # New field for the date watched
+
+    class Config:
+        orm_mode = True
+
 # Endpoint to create a new movie and add movie to watchlist
 @router.post("/movie/hello")
 async def create_movie(movie: movieCreate):
@@ -70,8 +86,8 @@ async def create_movie(movie: movieCreate):
     return {"movie": result, "watchlist_entry": watchlist_result}
 
 
-# # Insert the movie and then add it to the watched table with date_watched
-@router.post("/movie/watched")
+# Create the movie and then add it to the watched table with date_watched
+@router.post("/movie/createWatched")
 async def create_movie_watched(movie: movieCreateWatched):
     # Step 1: Insert the movie into the movie table
     result = await insert_movie(
@@ -89,6 +105,19 @@ async def create_movie_watched(movie: movieCreateWatched):
         raise HTTPException(status_code=400, detail="Error adding movie to watched list")
 
     return {"movie": result, "watched_entry": watched_result}
+
+# Add movie to the watched table with date_watched
+@router.post("/movie/watched")
+async def create_movie_watched(movie: MovieWatchedRequest):
+    # If dateWatched is not provided, use today's date
+    if movie.dateWatched is None:
+        movie.dateWatched = date.today()
+
+    watched_result = await insert_watchedMovie(movie.movie_id, movie.dateWatched)
+    if watched_result is None:
+        raise HTTPException(status_code=400, detail="Error adding movie to watched list")
+
+    return {"detail": "Movie Added", "watched": watched_result}
 
 # Endpoint to get a movie by movie_id
 @router.get("/movie/{movie_id}", response_model=movie)
@@ -179,6 +208,34 @@ async def read_all_watched():
         raise HTTPException(status_code=404, detail="No movie details found for any watched entry")
 
     return movies
+
+# @router.get("/watched", response_model=List[WatchedMovie])  # Adjust the response model
+# async def read_all_watched():
+#     # Fetch all movie_ids and date_watched from the watched movies
+#     watched_movies = await get_all_movies_from_watched()
+
+#     if not watched_movies:
+#         raise HTTPException(status_code=404, detail="No movies found in watched movie")
+
+#     # Extract movie_ids and date_watched
+#     movies = []
+#     for entry in watched_movies:
+#         movie_id = entry["movie_id"]
+#         date_watched = entry["date_watched"]
+
+#         # Fetch movie details
+#         movie = await get_movie(movie_id)
+#         if movie:
+#             # Add date_watched to the movie object
+#             movie_data = movie.dict()  # Convert movie object to dictionary
+#             movie_data["date_watched"] = date_watched  # Add date_watched
+#             movies.append(movie_data)
+
+#     if not movies:
+#         raise HTTPException(status_code=404, detail="No movie details found for any watched entry")
+
+#     return movies
+
 
 # Endpoint to rate movie
 @router.post("/rate")

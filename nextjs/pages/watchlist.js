@@ -13,12 +13,10 @@ const columns = [
   { field: 'movie_director', headerName: 'Director', width: 200, editable: false },
 ];
 
-
 export default function DataGridDemo() {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  // const [selectedMovieIds, setSelectedMovieIds] = useState([]); // Track selected rows
   const apiRef = useGridApiRef(); // Use apiRef to access DataGrid API
 
   // Fetch movies from the watchlist API
@@ -46,17 +44,9 @@ export default function DataGridDemo() {
     }
   };
 
-
   useEffect(() => {
     fetchWatchlistMovies();
   }, []);
-
-    // Handle getting selected rows when a button is clicked
-  const handleGetSelectedMovieIds = () => {
-    const selectedRows = apiRef.current.getSelectedRows(); // Get selected rows
-    const selectedMovieIds = Array.from(selectedRows.values()).map((row) => row.movie_id); // Extract movie_id
-    console.log("Selected Movie IDs:", selectedMovieIds); // Log the movie IDs
-  };
 
   // Handle delete movies
   const handleDeleteMovies = async () => {
@@ -86,18 +76,64 @@ export default function DataGridDemo() {
     }
   };
 
+  // Handle watched movies
+  const handleWatchedMovies = async () => {
+    const selectedRows = apiRef.current.getSelectedRows(); // Get selected rows
+    const selectedMovieIds = Array.from(selectedRows.values()).map((row) => row.movie_id); // Extract movie_id
+    const selectedMovieTitles = Array.from(selectedRows.values()).map((row) => row.movie_title);
+    console.log("Selected Movie IDs:", selectedMovieIds, selectedMovieTitles); // Log the movie IDs
+  
+    const confirmed = window.confirm(`Are you sure you want to mark ${selectedMovieTitles.join(", ")} movie(s) as 'Watched' and remove them from your watchlist?`);
+    if (!confirmed) return;
+  
+    try {
+      for (const movieId of selectedMovieIds) {
+        console.log("Processing Movie ID:", movieId);
+        
+        // Mark the movie as watched
+        const response = await fetch(`http://localhost:3000/api/movie/watched`, { // Ensure the URL is correct
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ movie_id: movieId }), // Send movie_id as JSON body
+        });
+  
+        if (!response.ok) {
+          throw new Error(`Failed to add movie with ID: ${movieId}`);
+        }
+  
+        // Remove the movie from the watchlist after marking it as watched
+        const deleteResponse = await fetch(`http://localhost:3000/api/watchlist?movie_id=${movieId}`, {
+          method: 'DELETE',
+        });
+  
+        if (!deleteResponse.ok) {
+          throw new Error(`Failed to delete movie with ID: ${movieId}`);
+        }
+      }
+  
+      // Refetch the updated watchlist after marking as watched and deleting
+      fetchWatchlistMovies();
+    } catch (error) {
+      console.error("Error processing movie(s):", error);
+      alert("An error occurred while processing movie(s). Please try again.");
+    }
+  };
+  
+
   if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>; 
+  if (error) return <div>Error: {error}</div>;
 
   return (
-    <Grid container justifyContent="center" alignItems="center" sx={{height: 900, backgroundColor: '#121212' }}>
-      <Grid item xs={6} md={10} sx={{ justifyContent: "center", backgroundColor: '#121212', marginTop: 2 }}>
+    <Grid container justifyContent="center" sx={{ height: 750, backgroundColor: '#121212' }}>
+      <Grid item xs={6} md={10} sx={{height: 100, justifyContent: "center", backgroundColor: '#121212F', mt: 3}}>
         <Typography variant="h3" gutterBottom style={{ color: '#ffffff' }}>
-          Your Watchlist:
+          My Watchlist:
         </Typography>
       </Grid>
       <Grid item xs={12} sm={10} sx={{ justifyContent: "center"}}>
-        <Box sx={{ height: 600, width: '100%'}}>
+        <Box sx={{ height: 500, width: '100%' }}>
           <DataGrid
             rows={movies}
             columns={columns}
@@ -112,30 +148,35 @@ export default function DataGridDemo() {
             checkboxSelection
             apiRef={apiRef}
             disableRowSelectionOnClick
-            // onSelectionModelChange={handleSelectionChange} // Handle row selection
             sx={{ backgroundColor: 'white' }}
           />
         </Box>
       </Grid>
-      <Grid container direction="row" sx={{ justifyContent: "center", backgroundColor: '#121212' }}>
-        <Button 
-          variant="outlined" 
-          href="/page1" 
-          sx={{ color: 'white', mr: 2}} // Add right margin (mr) to add space between the buttons
+      <Grid container direction="row" sx={{ justifyContent: "center", backgroundColor: '#121212', height: 50 }}>
+        <Button
+          variant="outlined"
+          href="/page1"
+          sx={{ color: 'white', mr: 2 }} // Add right margin (mr) to add space between the buttons
         >
           Add watchlist
         </Button>
-
         <Button
           variant="contained"
-          sx={{ backgroundColor: '#ff1b1b', color: 'white' }}
+          sx={{ backgroundColor: '#ff1b1b', color: 'white' , mr:2}}
           startIcon={<DeleteIcon />}
           onClick={handleDeleteMovies} // Add onClick to delete movies
         >
           Remove from watchlist
         </Button>
+        <Button
+          variant="contained"
+          sx={{ backgroundColor: '#ff1b1b', color: 'white'}}
+          startIcon={<DeleteIcon />}
+          onClick={handleWatchedMovies} // Add onClick to mark movies as watched
+        >
+          Marked as watched movie
+        </Button>
       </Grid>
-
     </Grid>
   );
 }

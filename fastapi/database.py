@@ -89,7 +89,7 @@ async def delete_watchlist(movie_id: int):
     query = "DELETE FROM watchlist WHERE movie_id = :movie_id RETURNING *"
     return await database.fetch_one(query=query, values={"movie_id": movie_id})
 
-#Function to insrt watchedMovie
+#Function to insert watchedMovie by id
 async def insert_watchedMovie(movie_id: int, dateWatched: date):
     query = """
     INSERT INTO watched (movie_id, dateWatched)
@@ -102,9 +102,15 @@ async def insert_watchedMovie(movie_id: int, dateWatched: date):
     }
     return await database.fetch_one(query=query, values=values)
 
-# Function to get movieID from watched
+
+# # Function to get movieID from watched
+# async def get_all_movies_from_watched():
+#     query = "select movie_id from watched w"
+#     return await database.fetch_all(query=query)
+
+# Function to get movie_id and date_watched from watched
 async def get_all_movies_from_watched():
-    query = "select movie_id from watched w"
+    query = "SELECT movie_id, datewatched FROM watched"
     return await database.fetch_all(query=query)
 
 #Function to insert rating
