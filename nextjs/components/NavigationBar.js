@@ -27,7 +27,7 @@ const NavigationLayout = ({ children }) => {
         <Toolbar>
           <NavigationLink href="/" label="Home" />
           <NavigationLink href="/watchlist" label="Watchlist" />
-          <NavigationLink href="/page2" label="Watched Movies" />
+          <NavigationLink href="/watched" label="Watched Movies" />
 
           <div style={{ flexGrow: 1 }} /> {/* Flex spacer */}
 

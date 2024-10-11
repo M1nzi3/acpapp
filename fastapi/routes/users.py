@@ -209,33 +209,6 @@ async def read_all_watched():
 
     return movies
 
-# @router.get("/watched", response_model=List[WatchedMovie])  # Adjust the response model
-# async def read_all_watched():
-#     # Fetch all movie_ids and date_watched from the watched movies
-#     watched_movies = await get_all_movies_from_watched()
-
-#     if not watched_movies:
-#         raise HTTPException(status_code=404, detail="No movies found in watched movie")
-
-#     # Extract movie_ids and date_watched
-#     movies = []
-#     for entry in watched_movies:
-#         movie_id = entry["movie_id"]
-#         date_watched = entry["date_watched"]
-
-#         # Fetch movie details
-#         movie = await get_movie(movie_id)
-#         if movie:
-#             # Add date_watched to the movie object
-#             movie_data = movie.dict()  # Convert movie object to dictionary
-#             movie_data["date_watched"] = date_watched  # Add date_watched
-#             movies.append(movie_data)
-
-#     if not movies:
-#         raise HTTPException(status_code=404, detail="No movie details found for any watched entry")
-
-#     return movies
-
 
 # Endpoint to rate movie
 @router.post("/rate")

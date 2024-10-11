@@ -4,7 +4,6 @@ import { DataGrid, useGridApiRef } from '@mui/x-data-grid';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
-import DeleteIcon from '@mui/icons-material/Delete';
 
 const columns = [
   { field: 'movie_title', headerName: 'Title', width: 250, editable: false },
@@ -147,7 +146,7 @@ export default function DataGridDemo() {
               },
             }}
             pageSizeOptions={[movies.length]} // Add an option for the total number of rows
-            checkboxSelection
+            // checkboxSelection
             apiRef={apiRef}
             disableRowSelectionOnClick
             sx={{ backgroundColor: 'white' }}
@@ -157,27 +156,27 @@ export default function DataGridDemo() {
       <Grid container direction="row" sx={{ justifyContent: "center", backgroundColor: '#121212', height: 50 }}>
         <Button
           variant="outlined"
-          href="/page1"
+          href="/page2"
           sx={{ color: 'white', mr: 2 }} // Add right margin (mr) to add space between the buttons
         >
-          Add watchlist
+          Add watched movie or rate movie
         </Button>
-        <Button
+        {/* <Button
           variant="contained"
           sx={{ backgroundColor: '#ff1b1b', color: 'white' , mr:2}}
           startIcon={<DeleteIcon />}
           onClick={handleDeleteMovies} // Add onClick to delete movies
         >
           Remove from watchlist
-        </Button>
-        <Button
+        </Button> */}
+        {/* <Button
           variant="contained"
           sx={{ backgroundColor: '#ff1b1b', color: 'white'}}
           startIcon={<DeleteIcon />}
           onClick={handleWatchedMovies} // Add onClick to mark movies as watched
         >
-          Marked as watched movie
-        </Button>
+          Rate this movie
+        </Button> */}
       </Grid>
     </Grid>
   );
