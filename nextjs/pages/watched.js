@@ -27,7 +27,7 @@ export default function DataGridDemo() {
         throw new Error('Network response was not ok');
       }
       const data = await response.json();
-      
+  
       // Convert string dates to actual Date objects
       setMovies(data.map(movie => ({
         id: movie.movie_id,
@@ -36,7 +36,7 @@ export default function DataGridDemo() {
         movie_genre: movie.movie_genre,
         movie_releaseddate: new Date(movie.movie_releaseddate), // Convert to Date object
         movie_director: movie.movie_director,
-        movie_watcheddate: new Date(movie.movie_watcheddate),
+        movie_watcheddate: new Date(movie.movie_watcheddate), // Fix: Parse watched date properly
       })));
     } catch (err) {
       setError(err.message);
@@ -44,83 +44,11 @@ export default function DataGridDemo() {
       setLoading(false);
     }
   };
+  
 
   useEffect(() => {
     fetchWatchedMovies();
   }, []);
-
-  // Handle delete movies
-  const handleDeleteMovies = async () => {
-    const selectedRows = apiRef.current.getSelectedRows(); // Get selected rows
-    const selectedMovieIds = Array.from(selectedRows.values()).map((row) => row.movie_id); // Extract movie_id
-    const selectedMovieTitle = Array.from(selectedRows.values()).map((row) => row.movie_title);
-    console.log("Selected Movie IDs:", selectedMovieIds, selectedMovieTitle); // Log the movie IDs
-
-    const confirmed = window.confirm(`Are you sure you want to remove ${selectedMovieTitle} movie(s) from the watchlist?`);
-    if (!confirmed) return;
-
-    try {
-      for (const movieId of selectedMovieIds) {
-        const response = await fetch(`api/watchlist?movie_id=${movieId}`, {
-          method: 'DELETE',
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to delete movie with ID: ${movieId}`);
-        }
-      }
-      // Refetch the updated watchlist after deletion
-      fetchWatchedMovies();
-    } catch (error) {
-      console.error("Error deleting movie(s):", error);
-      alert("An error occurred while deleting movie(s). Please try again.");
-    }
-  };
-
-  // Handle watched movies
-  const handleWatchedMovies = async () => {
-    const selectedRows = apiRef.current.getSelectedRows(); // Get selected rows
-    const selectedMovieIds = Array.from(selectedRows.values()).map((row) => row.movie_id); // Extract movie_id
-    const selectedMovieTitles = Array.from(selectedRows.values()).map((row) => row.movie_title);
-    console.log("Selected Movie IDs:", selectedMovieIds, selectedMovieTitles); // Log the movie IDs
-  
-    const confirmed = window.confirm(`Are you sure you want to mark ${selectedMovieTitles.join(", ")} movie(s) as 'Watched' and remove them from your watchlist?`);
-    if (!confirmed) return;
-  
-    try {
-      for (const movieId of selectedMovieIds) {
-        console.log("Processing Movie ID:", movieId);
-        
-        // Mark the movie as watched
-        const response = await fetch(`http://localhost:3000/api/movie/watched`, { // Ensure the URL is correct
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ movie_id: movieId }), // Send movie_id as JSON body
-        });
-  
-        if (!response.ok) {
-          throw new Error(`Failed to add movie with ID: ${movieId}`);
-        }
-  
-        // Remove the movie from the watchlist after marking it as watched
-        const deleteResponse = await fetch(`http://localhost:3000/api/watchlist?movie_id=${movieId}`, {
-          method: 'DELETE',
-        });
-  
-        if (!deleteResponse.ok) {
-          throw new Error(`Failed to delete movie with ID: ${movieId}`);
-        }
-      }
-  
-      // Refetch the updated watchlist after marking as watched and deleting
-      fetchWatchedMovies();
-    } catch (error) {
-      console.error("Error processing movie(s):", error);
-      alert("An error occurred while processing movie(s). Please try again.");
-    }
-  };
   
 
   if (loading) return <div>Loading...</div>;
@@ -161,22 +89,6 @@ export default function DataGridDemo() {
         >
           Add watched movie or rate movie
         </Button>
-        {/* <Button
-          variant="contained"
-          sx={{ backgroundColor: '#ff1b1b', color: 'white' , mr:2}}
-          startIcon={<DeleteIcon />}
-          onClick={handleDeleteMovies} // Add onClick to delete movies
-        >
-          Remove from watchlist
-        </Button> */}
-        {/* <Button
-          variant="contained"
-          sx={{ backgroundColor: '#ff1b1b', color: 'white'}}
-          startIcon={<DeleteIcon />}
-          onClick={handleWatchedMovies} // Add onClick to mark movies as watched
-        >
-          Rate this movie
-        </Button> */}
       </Grid>
     </Grid>
   );
