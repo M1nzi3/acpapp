@@ -126,7 +126,20 @@ export default function DataGridDemo() {
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <Grid container justifyContent="center" sx={{ height: 750, backgroundColor: '#121212' }}>
+    <Box
+    sx={{
+      height: "100vh",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "space-between",
+      backgroundImage: `url('/MovieBackground.jpg')`, // Adjust the path if needed
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      position: "relative",
+      color: "#fff",
+    }}
+  >
+    <Grid container justifyContent="center" alignItems="center" sx={{ minHeight: '100vh', bgcolor: 'rgba(18, 18, 18, 0.5)' }}>
       <Grid item xs={6} md={10} sx={{height: 100, justifyContent: "center", backgroundColor: '#121212F', mt: 3}}>
         <Typography variant="h3" gutterBottom style={{ color: '#ffffff' }}>
           My Watchlist:
@@ -152,17 +165,17 @@ export default function DataGridDemo() {
           />
         </Box>
       </Grid>
-      <Grid container direction="row" sx={{ justifyContent: "center", backgroundColor: '#121212', height: 50 }}>
+      <Grid container direction="row" sx={{ justifyContent: "center",  height: 50 }}>
         <Button
           variant="outlined"
           href="/page1"
-          sx={{ color: 'white', mr: 2 }} // Add right margin (mr) to add space between the buttons
+          sx={{backgroundColor: '#2c3e50', color: 'white', mr: 2 }} // Add right margin (mr) to add space between the buttons
         >
           Add watchlist
         </Button>
         <Button
           variant="contained"
-          sx={{ backgroundColor: '#ff1b1b', color: 'white' , mr:2}}
+          sx={{ backgroundColor: '#c0392b', color: 'white' , mr:2}}
           startIcon={<DeleteIcon />}
           onClick={handleDeleteMovies} // Add onClick to delete movies
         >
@@ -170,14 +183,14 @@ export default function DataGridDemo() {
         </Button>
         <Button
           variant="contained"
-          sx={{ backgroundColor: '#ff1b1b', color: 'white'}}
-          startIcon={<DeleteIcon />}
+          sx={{ backgroundColor: '#c0392b', color: 'white'}}
           onClick={handleWatchedMovies} // Add onClick to mark movies as watched
         >
           Marked as watched movie
         </Button>
       </Grid>
     </Grid>
+    </Box>
   );
 }
 

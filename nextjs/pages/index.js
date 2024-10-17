@@ -31,13 +31,13 @@ function Home() {
           </Typography>
           <Grid container spacing={1} justifyContent="center" alignItems="center">
           <Grid item xs={5}>
-          <Button variant="contained" href="/page1" style={{ backgroundColor: '#ff1b1b', color: 'white', marginTop: '16px' }} >
+          <Button variant="contained" href="/page1" style={{ backgroundColor: '#c0392b', color: 'white', marginTop: '16px' }} >
               Add watchlist
             </Button>
           </Grid>
           <Grid item xs={5}>
 
-          <Button variant="contained" href="/page2" style={{ backgroundColor: '#ff1b1b', color: 'white', marginTop: '16px' }} >
+          <Button variant="contained" href="/page2" style={{ backgroundColor: '#c0392b', color: 'white', marginTop: '16px' }} >
               Add watched movie
             </Button>
           </Grid>

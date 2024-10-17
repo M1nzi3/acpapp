@@ -28,6 +28,7 @@ const NavigationLayout = ({ children }) => {
           <NavigationLink href="/" label="Home" />
           <NavigationLink href="/watchlist" label="Watchlist" />
           <NavigationLink href="/watched" label="Watched Movies" />
+          <NavigationLink href="/dashboard" label="Dashboard" />
 
           <div style={{ flexGrow: 1 }} /> {/* Flex spacer */}
 

@@ -36,6 +36,13 @@ class movie(BaseModel):
     movie_director: str
     movie_watcheddate : Optional[date]
 
+class movieInWatchlist(BaseModel):
+    movie_id: int
+    movie_title: str
+    movie_genre: str
+    movie_releaseddate: date
+    movie_director: str
+
 class watchlistAdd(BaseModel):
     movie_id: int
 
@@ -155,7 +162,7 @@ async def delete_movie_endpoint(movie_id: int):
     return {"detail": "Movie deleted"}
 
 # Endpoint to get all movies from the watchlist
-@router.get("/watchlist", response_model=List[movie])
+@router.get("/watchlist", response_model=List[movieInWatchlist])
 async def read_all_watchlist():
     # Fetch all movie_ids from the watchlist
     watchlist_movies = await get_all_movies_from_watchlist()
@@ -169,9 +176,9 @@ async def read_all_watchlist():
     # Fetch movie details for all movie_ids
     movies = []
     for movie_id in movie_ids:
-        movie = await get_movie(movie_id)
-        if movie:
-            movies.append(movie)
+        movieInWatchlist = await get_movie(movie_id)
+        if movieInWatchlist:
+            movies.append(movieInWatchlist)
 
     if not movies:
         raise HTTPException(status_code=404, detail="No movie details found for any watchlist entry")
@@ -185,30 +192,6 @@ async def delete_watchlist_item(movie_id: int):
     if result is None:
         raise HTTPException(status_code=404, detail="Movie not found")
     return {"detail": "Movie deleted"}
-
-# # Endpoint to get all movies from the watched
-# @router.get("/watched", response_model=List[movie])
-# async def read_all_watched():
-#     # Fetch all movie_ids from the watchlist
-#     watched_movies = await get_all_movies_from_watched()
-
-#     if not watched_movies:
-#         raise HTTPException(status_code=404, detail="No movies found in watched movie")
-
-#     # Extract movie_ids
-#     movie_ids = [entry["movie_id"] for entry in watched_movies]
-
-#     # Fetch movie details for all movie_ids
-#     movies = []
-#     for movie_id in movie_ids:
-#         movie = await get_movie(movie_id)
-#         if movie:
-#             movies.append(movie)
-
-#     if not movies:
-#         raise HTTPException(status_code=404, detail="No movie details found for any watched entry")
-
-#     return movies
 
 @router.get("/watched", response_model=List[movie])
 async def read_all_watched():
@@ -248,6 +231,31 @@ async def rate_movie(movie: rating):
     if result is None:
         raise HTTPException(status_code=404, detail="Movie not found")
     return {"movie": result, "rating_entry": result}
+
+@router.get("/watchlist/count", response_model=int)
+async def get_watchlist_count():
+    query = "SELECT COUNT(*) FROM watchlist"
+    count = await database.fetch_one(query)
+    return count[0]
+
+@router.get("/watched/count", response_model=int)
+async def get_watched_count():
+    query = "SELECT COUNT(*) FROM watched"
+    count = await database.fetch_one(query)
+    return count[0]
+
+# Endpoint to get a number of favorite movie
+@router.get("/favorite")
+async def read_favorite():
+    count = await get_favorite()
+    return count
+
+
+@router.get("/ratings")
+async def get_ratings_data():
+    result = await get_rate()
+    data = {str(row["rating"]): row["rating_count"] for row in result}
+    return data
 
 
 

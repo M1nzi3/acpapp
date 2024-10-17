@@ -128,6 +128,23 @@ async def insert_rating(movie_id: int, rating: int, favorite: bool, review: str)
     }
     return await database.fetch_one(query=query, values=values)
 
+async def get_favorite():
+    query = """
+    SELECT COUNT(*) AS favorite_movie_count
+    FROM rating
+    WHERE favorite = TRUE;
+    """
+    return await database.fetch_one(query=query)
+
+async def get_rate():
+    query = """
+    SELECT rating, COUNT(*) AS rating_count
+    FROM rating
+    WHERE rating BETWEEN 1 AND 5
+    GROUP BY rating
+    ORDER BY rating;
+    """
+    return await database.fetch_all(query=query)
 
 
 
