@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Grid, Paper, Button } from "@mui/material";
+import { Box, Typography, Grid, Paper, Rating } from "@mui/material";
 import { PieChart } from '@mui/x-charts/PieChart';
 import CircularProgress from '@mui/material/CircularProgress';
-// import { BarChart,XAxis,Bar, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer} from '@mui/x-charts/BarChart';
-import { CartesianGrid, BarChart, XAxis, YAxis, Tooltip, Legend } from '@mui/x-charts';
+import { BarChart } from '@mui/x-charts';
+import { DataGrid } from '@mui/x-data-grid';
+import StarIcon from '@mui/icons-material/Star';
 
 const Dashboard = () => {
   const [watchlistCount, setWatchlistCount] = useState(null);
@@ -12,6 +14,9 @@ const Dashboard = () => {
   const [watchedCount, setWatchedCount] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [movieData, setMovieData] = useState([]);  // For storing movie details by rating
+  // const [itemData, setItemData] = React.useState();
+  const [movieRate, setMovieRate] = useState(0);
 
   const fetchFavoriteCount = async () => {
     try {
@@ -50,6 +55,8 @@ const Dashboard = () => {
   };
 
   const fetchRatingData = async () => {
+    
+
     try {
       const response = await fetch('/api/ratings');
       if (!response.ok) {
@@ -69,16 +76,34 @@ const Dashboard = () => {
       setError("Failed to fetch rating data");
     }
   };
-  
 
+  const fetchMoviesByRating = async (rating) => {
+    console.log("Fetching movies for rating:", rating);
+    if (rating === 0) return;  // Do not fetch movies if rating is 0
+    try {
+      const response = await fetch(`/api/movies/by-rating/${rating}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch movies for rating');
+      }
+      const movies = await response.json();
+      setMovieData(movies);  // Store the movie data
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  // Trigger fetch when rating changes
   useEffect(() => {
-    // Fetching data sequentially and waiting for all data
+    fetchMoviesByRating(movieRate);
+  }, [movieRate]);  // This will trigger whenever `movieRate` changes
+
+  // Fetch other data when component mounts
+  useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       await Promise.all([fetchWatchlistCount(), fetchWatchedCount(), fetchFavoriteCount(), fetchRatingData()]);
       setLoading(false);
     };
-
     fetchData();
   }, []);
 
@@ -86,6 +111,9 @@ const Dashboard = () => {
   if (error) return <div>Error: {error}</div>;
 
   const nonFavoriteCount = watchedCount - favoriteCount;
+
+
+  
 
   return (
     <Box
@@ -101,7 +129,7 @@ const Dashboard = () => {
         color: "#fff",
       }}
     >
-      <Grid container spacing={4} justifyContent="center" alignItems="center" sx={{ minHeight: '104vh', bgcolor: 'rgba(18, 18, 18, 0.5)' }}>
+      <Grid container spacing={2} justifyContent="center" alignItems="center" sx={{ minHeight: '102vh', bgcolor: 'rgba(18, 18, 18, 0.5)' }}>
         
         {/* Watchlist Count */}
         <Grid item xs={3} mt={4}>
@@ -152,7 +180,7 @@ const Dashboard = () => {
         </Grid>
 
         {/* Favorite Movies Pie Chart */}
-        <Grid item xs={4} mt={4}>
+        <Grid item xs={4}>
           <Paper
             elevation={5}
             style={{
@@ -199,35 +227,75 @@ const Dashboard = () => {
         </Grid>
 
         {/* Rating Distribution Bar Chart */}
-        <Grid item xs={10} mb={4}>
-  <Paper elevation={5} style={{ height: 400, padding: '20px', backgroundColor: '#f5f2ee', color: '#ffffff' }}>
-    <Typography variant="h6" gutterBottom style={{ color: '	#2c3e50' }}>
-      Movies Rating Distribution
+        <Grid item xs={5}>
+          <Paper elevation={5} style={{ height: 400, padding: '20px', backgroundColor: '#f5f2ee', color: '#ffffff' }}>
+
+            <Typography variant="h6" gutterBottom style={{ color: '	#2c3e50' }}>
+              Movies Rating Distribution
+            </Typography>
+
+            <BarChart
+              xAxis={[{ scaleType: 'band', data: ratingData.map(item => `rating ${item.x}`) }]}
+              series={[{
+                label: 'Movies',
+                data: ratingData.map(item => item.y),
+                color: '#c0392b',
+              }]}
+              width={550}
+              height={400}
+            />
+          </Paper>
+          </Grid>
+        
+
+        {/* Movie DataGrid */}
+        <Grid item xs={5}>
+  <Paper elevation={5} style={{ height: 450, padding: '20px', backgroundColor: '#f5f2ee', color: '#ffffff' }}>
+    <Typography variant="h6" gutterBottom style={{ color: '#2c3e50'}}>
+      Movies for Selected Rating and my review
     </Typography>
     
-    {/* Adjusted BarChart */}
-    {/* <ResponsiveContainer width="100%" height={300}> */}
-    <BarChart
-    xAxis={[{scaleType: 'band', data: ratingData.map(item => `rating ${item.x}`) }]}
-    series={[{
-    label: 'Movies',
-    data: ratingData.map(item => item.y),
-    color: '#c0392b', // Set bar color to #c0392b
-    }]}
-    width={500}
-    height={400}
-    >
-    </BarChart>
+      {/* Move Rating to the right of the Typography */}
+      <Rating
+        name="simple-controlled"
+        value={movieRate}
+        size="large"
+        onChange={(event, newValue) => { setMovieRate(newValue); }}
+        emptyIcon={<StarIcon style={{ color: '#000000', opacity: 0.3 }} fontSize="inherit" />}
+      />
 
-    {/* </ResponsiveContainer> */}
+
+      <DataGrid
+        rows={movieData.map((movie, index) => ({
+          id: index,
+          title: movie.movie_title,
+          review: movie.review,
+          favorite: movie.favorite ? "Yes" : "No",
+        }))}
+        columns={[
+          { field: 'title', headerName: 'Title', width: 150 },
+          { field: 'review', headerName: 'Review', width: 100 },
+          { field: 'favorite', headerName: 'Favorite', width: 100 },
+        ]}
+        initialState={{
+          pagination: {
+            paginationModel: {
+              pageSize: '5',
+            },
+          },
+        }}
+        sx={{ height: 370 }}
+      />
 
   </Paper>
+  </Grid>
 </Grid>
 
-      </Grid>
     </Box>
   );
 };
 
 export default Dashboard;
+
+
 

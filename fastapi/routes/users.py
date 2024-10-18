@@ -257,6 +257,28 @@ async def get_ratings_data():
     data = {str(row["rating"]): row["rating_count"] for row in result}
     return data
 
+@router.get("/movies/by-rating/{rating}")
+async def get_movies_by_rating(rating: int):
+    query = """
+    SELECT 
+        m.movie_title, 
+        r.review, 
+        r.favorite
+    FROM 
+        rating r
+    JOIN 
+        movie m 
+    ON 
+        r.movie_id = m.movie_id
+    WHERE 
+        r.rating = :rating
+    """
+    results = await database.fetch_all(query=query, values={"rating": rating})
+    
+    if not results:
+        raise HTTPException(status_code=404, detail="No movies found for this rating")
+    
+    return results
 
 
 
